@@ -1,0 +1,4 @@
+{
+  "workspaces": ["apps/*", "scripts/*"],
+  "name": "api-test"
+}
