@@ -3,10 +3,16 @@
   "scripts": {
     "build": "nitro build",
     "dev": "nitro dev",
+    "postinstall": "nitro prepare",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs"
   },
   "devDependencies": {
     "nitropack": "latest"
+  },
+  "dependencies": {
+    "@types/pg": "^8.11.10",
+    "db0": "^0.2.1",
+    "pg": "^8.13.1"
   }
 }
