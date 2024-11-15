@@ -4,17 +4,17 @@ import {c} from "openapi-typescript";
 async function createItemsTable() {
     // Create users table
     console.log("Creating users table");
-    await db.sql`CREATE TABLE IF NOT EXISTS users
+    await db.sql`CREATE TABLE IF NOT EXISTS sneakers
                  (
                      "id"
                      TEXT
                      PRIMARY
                      KEY,
-                     "firstName"
+                     "Name"
                      TEXT,
-                     "lastName"
+                     "indice"
                      TEXT,
-                     "email"
+                     "brand"
                      TEXT
                  )`;
 
