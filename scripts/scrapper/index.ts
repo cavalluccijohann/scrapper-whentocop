@@ -4,12 +4,18 @@ import puppeteer from "puppeteer";
 // Url of the website to scrap
 const baseUrl = 'https://www.whentocop.fr/drops'
 
+// Options interface
+type Options = {
+    number: number,
+    scroll: boolean
+}
+
 program
     .name("WhenToCop scrapper")
     .version("1.0.0")
     .option("-n, --number <number>", "number of items to scrap", "10")
     .option("-s --scroll", "scroll to the bottom of the page")
-    .action(async (options) => {
+    .action(async (options: Options) => {
 
         console.log("Options: ", options)
         console.log("Starting scrapping...")

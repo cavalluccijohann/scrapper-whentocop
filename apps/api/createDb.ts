@@ -1,8 +1,7 @@
 import { db } from "./server/utils/db";
-import {c} from "openapi-typescript";
 
 async function createItemsTable() {
-    // Create users table
+    // Create sneakers table
     console.log("Creating sneakers table");
     await db.sql`CREATE TABLE IF NOT EXISTS sneakers
                  (
