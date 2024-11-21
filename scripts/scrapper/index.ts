@@ -1,28 +1,24 @@
 import {program} from 'commander'
 import puppeteer from "puppeteer";
 
+// Url of the website to scrap
 const baseUrl = 'https://www.whentocop.fr/drops'
-
-const sectionSelector = 'div.infinite-scroll-component';
-const nameSelector = 'div > a > div.sc-bbdecccd-0 > div.sc-bbdecccd-1 > div.sc-bbdecccd-2 > h3.sc-bbdecccd-5';
-const brandSelector = 'div > a > div.sc-bbdecccd-0 > div.sc-bbdecccd-1 > div.sc-bbdecccd-2 > h4.sc-bbdecccd-4';
-const indiceSelector = 'div > a > div.sc-bbdecccd-0 > div.sc-bbdecccd-1 > div.sc-bbdecccd-2 > div.sc-bbdecccd-6 > p.sc-bbdecccd-7';
-
 
 program
     .name("WhenToCop scrapper")
     .version("1.0.0")
-    .option("-v, --verbose", "enable verbose mode")
-    .option("-n, --number <number>", "number of items to scrap", "5")
+    .option("-n, --number <number>", "number of items to scrap", "10")
+    .option("-s --scroll", "scroll to the bottom of the page")
     .action(async (options) => {
+
+        console.log("Options: ", options)
         console.log("Starting scrapping...")
 
+        // get items
         const items = await getItems(options.number)
 
-        // check if verbose mode is enabled
-
         // push items to db
-        const response = await fetch('http://localhost:3000', {
+        await fetch('http://localhost:3000', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -33,36 +29,52 @@ program
         console.log("Scraping done.")
     })
 
-async function getItems(number: number) {
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    await page.goto(baseUrl)
+/**
+ * Get items from the website
+ * @param maxItems
+ */
+async function getItems(maxItems: number) {
+    // Inits
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(baseUrl);
 
-    // Sélecteur pour cibler la div principale contenant toutes les sneakers
+    // Main container selector
     const containerSelector = 'div.infinite-scroll-component';
 
-    // Attendre que la div principale soit chargée
+    // Wait for the container to load
     await page.waitForSelector(containerSelector);
 
-    // Évaluer le contenu de la page
-    const sneakersData = await page.evaluate(() => {
-        // Sélectionner le parent avec la classe "test"
+    // Get the data
+    const sneakersData = await page.evaluate((maxItems) => {
+        // Get the parent div
         const parentDiv = document.querySelector('.infinite-scroll-component');
         const sneakers = [];
 
-        // Si le parent existe, récupérer tous les enfants <div>
+        // Check if the parent div exists
         if (parentDiv) {
             const childDivs = Array.from(parentDiv.children);
 
-            childDivs.forEach(div => {
-                // Récupérer tous les éléments <a> dans chaque <div>
+            // Loop through all the child divs
+            for (let div of childDivs) {
+
+                // Break if we reached the maxItems
+                if (sneakers.length >= maxItems) break;
+
                 const links = div.querySelectorAll('a');
 
-                links.forEach(link => {
+                // Loop through all the links
+                for (let link of links) {
+
+                    // Break if we reached the maxItems
+                    if (sneakers.length >= maxItems) break;
+
+                    // Get the elements
                     const brandElement = link.querySelector('h3.sc-bbdecccd-5');
                     const nameElement = link.querySelector('h4.sc-bbdecccd-4');
                     const indiceElement = link.querySelector('p.sc-bbdecccd-7');
 
+                    // Check if the elements exist and push the data
                     if (nameElement && brandElement && indiceElement) {
                         sneakers.push({
                             brand: brandElement.textContent.trim(),
@@ -70,14 +82,17 @@ async function getItems(number: number) {
                             indice: indiceElement.textContent.trim()
                         });
                     }
-                });
-            });
+                }
+            }
         }
+        // Return the sneakers
         return sneakers;
-    });
+    }, maxItems); // Pass the maxItems to the evaluate function
 
-    await browser.close()
+    // Close the browser and return the data
+    await browser.close();
     return sneakersData;
 }
 
+// Start the program
 program.parse();
