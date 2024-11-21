@@ -3,19 +3,13 @@ import {c} from "openapi-typescript";
 
 async function createItemsTable() {
     // Create users table
-    console.log("Creating users table");
+    console.log("Creating sneakers table");
     await db.sql`CREATE TABLE IF NOT EXISTS sneakers
                  (
-                     "id"
-                     TEXT
-                     PRIMARY
-                     KEY,
-                     "Name"
-                     TEXT,
-                     "indice"
-                     TEXT,
-                     "brand"
-                     TEXT
+                        id SERIAL PRIMARY KEY,
+                        brand TEXT NOT NULL,
+                        name TEXT NOT NULL,
+                        indice TEXT NOT NULL
                  )`;
 
 }
